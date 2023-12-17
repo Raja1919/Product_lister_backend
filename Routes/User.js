@@ -16,7 +16,7 @@ router.post("/signup", async (req, res) => {
 
     await newUser.save();
 
-    return res.status(201).json({ message: "user Created" });
+    return res.status(201).json(newUser);
   }
   res.status(404).json({ message: "user Already exist" });
 });
@@ -64,9 +64,14 @@ router.get("/user-details/:id", async (req, res) => {
 // Update the user profile after gathering details
 router.put("/user-details/:id", async (req, res) => {
   try {
+    if (req.body.password) {
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+    }
+
     const result = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+
     res.send(result);
   } catch (error) {
     console.error(error);
